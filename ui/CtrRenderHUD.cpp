@@ -143,6 +143,9 @@ RenderHUD::update(double elapsedTime)
     if (_inputState->getKeyState(DIK_F7))
     {
         static int index = 0;
+        std::ostringstream stream;
+        stream << "data/screenshots/screenshot" << index << ".tif";
+        _deviceInterface->backbuffer()->writeToFile(stream.str());
         std::string filePathName = "";
         index++;
     }

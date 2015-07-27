@@ -245,7 +245,6 @@ SurfaceD3D11::writeToFile (const std::string& filename) const
             imagePtr->loadDynamicTextureImage(pixelData, width, height, 1, pf, true);
             imagePtr->save(filename);
             _immediateCtx->Unmap(stagingTexture, 0);
-            ::free(pixelData);
         }        
 
         saferelease(stagingTexture);

@@ -189,7 +189,7 @@ namespace Ctr
     {
         FIBITMAP* ret = 0;
 
-        ImageData* pImgData = static_cast< ImageData * >( pData.get() );
+        ImageData* pImgData = static_cast< ImageData * >(pData.get());
         PixelBox src(pImgData->width, pImgData->height, pImgData->depth, pImgData->format, input->getPtr());
 
         // The required format, which will adjust to the format
@@ -200,7 +200,7 @@ namespace Ctr
         FREE_IMAGE_TYPE imageType;
         PixelFormat determiningFormat = pImgData->format;
 
-        switch(determiningFormat)
+        switch (determiningFormat)
         {
         case PF_R5G6B5:
         case PF_B5G6R5:
@@ -222,16 +222,17 @@ namespace Ctr
             // I'd like to be able to use r/g/b masks to get FreeImage to load the data
             // in it's existing format, but that doesn't work, FreeImage needs to have
             // data in RGB[A] (big endian) and BGR[A] (little endian), always.
-//            if (PixelUtil::hasAlpha(determiningFormat))
-            {
+            //            if (PixelUtil::hasAlpha(determiningFormat))
+        {
 #if FREEIMAGE_COLORORDER == FREEIMAGE_COLORORDER_RGB
-                requiredFormat = PF_BYTE_RGBA;
+            requiredFormat = PF_BYTE_RGBA;
 #else
-                requiredFormat = PF_BYTE_RGBA;
+            requiredFormat = PF_BYTE_BGRA;
+            imageType = FIT_BITMAP;
 #endif
-            }
-            break;
-            // fall through
+        }
+        break;
+        // fall through
         case PF_L8:
         case PF_A8:
             imageType = FIT_BITMAP;
@@ -337,9 +338,9 @@ namespace Ctr
 
 
         ret = FreeImage_AllocateT(
-            imageType, 
-            static_cast<int>(pImgData->width), 
-            static_cast<int>(pImgData->height), 
+            imageType,
+            static_cast<int>(pImgData->width),
+            static_cast<int>(pImgData->height),
             bpp);
 
         if (!ret)
@@ -350,7 +351,7 @@ namespace Ctr
             throw(std::exception("FreeImage_AllocateT failed - possibly out of memory. "));
         }
 
-        if (requiredFormat == PF_L8 || requiredFormat == PF_A8 )
+        if (requiredFormat == PF_L8 || requiredFormat == PF_A8)
         {
             // Must explicitly tell FreeImage that this is greyscale by setting
             // a "grey" palette (otherwise it will save as a normal RGB
@@ -365,7 +366,7 @@ namespace Ctr
             FreeImage_Unload(ret);
             ret = tmp;
         }
-        
+
         size_t dstPitch = FreeImage_GetPitch(ret);
         size_t srcPitch = pImgData->width * PixelUtil::getNumElemBytes(requiredFormat);
 
