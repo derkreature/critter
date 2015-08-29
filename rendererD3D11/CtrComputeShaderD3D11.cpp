@@ -46,7 +46,7 @@
 #include <CtrTexture2DD3D11.h>
 #include <CtrAssetManager.h>
 #include <CtrLog.h>
-#include <D3Dcompiler.h>
+#include <D3Dcompiler.h> 
 
 namespace Ctr
 {
@@ -57,7 +57,7 @@ ID3D10Blob* compileShaderFromStream(const char* stream,
                                     const char* profile,
                                     CONST D3D_SHADER_MACRO* defines)
 {
-    UINT flags = D3D10_SHADER_SKIP_OPTIMIZATION;
+    UINT flags = 0;
     ID3D10Blob* compiledShader = nullptr;
     ID3D10Blob * errors = nullptr;
 
