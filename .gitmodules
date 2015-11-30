@@ -1,0 +1,12 @@
+[submodule "dependencies/assimp"]
+	path = dependencies/assimp
+	url = https://github.com/derkreature/assimp.git
+[submodule "dependencies/FreeImage"]
+	path = dependencies/FreeImage
+	url = https://github.com/derkreature/FreeImage.git
+[submodule "dependencies/libzip"]
+	path = dependencies/libzip
+	url = https://github.com/derkreature/libzip.git
+[submodule "dependencies/zlib"]
+	path = dependencies/zlib
+	url = https://github.com/derkreature/zlib.git
