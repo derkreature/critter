@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
@@ -31,7 +31,6 @@
     <ClCompile Include="dependencies\nanovg\nanovg.c" />
     <ClCompile Include="dependencies\pugixml\src\pugixml.cpp" />
     <ClCompile Include="dependencies\pugixml\src\pugixpath.cpp" />
-    <ClCompile Include="dependencies\tinyobjloader\tiny_obj_loader.cc" />
     <ClCompile Include="input\CtrCameraManager.cpp" />
     <ClCompile Include="input\CtrDampenedInput.cpp" />
     <ClCompile Include="input\CtrFocusedInput.cpp" />
@@ -168,7 +167,6 @@
     <ClInclude Include="dependencies\nanovg\nanovg.h" />
     <ClInclude Include="dependencies\pugixml\src\pugiconfig.hpp" />
     <ClInclude Include="dependencies\pugixml\src\pugixml.hpp" />
-    <ClInclude Include="dependencies\tinyobjloader\tiny_obj_loader.h" />
     <ClInclude Include="input\CtrCameraManager.h" />
     <ClInclude Include="input\CtrDampenedInput.h" />
     <ClInclude Include="input\CtrFocusedInput.h" />
@@ -305,13 +303,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -351,7 +349,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>IBL_USE_ASS_IMP_AND_FREEIMAGE=1;DIRECTINPUT_VERSION=0x0800;_SCL_SECURE_NO_WARNINGS=1;_CRT_SECURE_NO_WARNINGS=1;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>dependencies\CmdLine;dependencies\libzip\lib;../../../dependencies\libzip\lib;../../dependencies\libzip\lib;../dependencies\libzip\lib;../dependencies\assimp\include\assimp;../dependencies\assimp\include\FreeImage\inc;newui;../newui;swizzling;../swizzling;dependencies\imgui;dependencies\nanovg;dependencies\tinyobjloader;dependencies\assimp\include\assimp;../dependencies;../../dependencies;dependencies\MurmerHash;../../dependencies\MurmerHash;../dependencies\MurmerHash;../dependencies\pugixml\src;dependencies\pugixml\src;dependencies\ois\includes;rendererD3D11\errorD3D11;dependencies\FreeImage\inc;dependencies\AntTweakBar\include;../Critter;../;../RenderAPI;RenderAPI;../Codecs;../math;math;../application;application;input;../input;Codecs/;RendererD3D11;../RendererD3D11;RendererD3D11/;rendererD3D11\effectsD3D11;rendererD3D11\effectsD3D11\inc;rendererD3D11\effectsD3D11\binary;../nodes;nodes;../ui;ui</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>dependencies\CmdLine;dependencies\libzip\lib;../../../dependencies\libzip\lib;../../dependencies\libzip\lib;../dependencies\libzip\lib;../dependencies\assimp\include\assimp;../dependencies\FreeImage\Source\FreeImage;newui;../newui;swizzling;../swizzling;dependencies\imgui;dependencies\nanovg;dependencies\tinyobjloader;dependencies\assimp\include\assimp;../dependencies;../../dependencies;dependencies\MurmerHash;../../dependencies\MurmerHash;../dependencies\MurmerHash;../dependencies\pugixml\src;dependencies\pugixml\src;dependencies\ois\includes;rendererD3D11\errorD3D11;dependencies\FreeImage\inc;dependencies\AntTweakBar\include;../Critter;../;../RenderAPI;RenderAPI;../Codecs;../math;math;../application;application;input;../input;Codecs/;RendererD3D11;../RendererD3D11;RendererD3D11/;rendererD3D11\effectsD3D11;rendererD3D11\effectsD3D11\inc;rendererD3D11\effectsD3D11\binary;../nodes;nodes;../ui;ui</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalOptions>/FS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>

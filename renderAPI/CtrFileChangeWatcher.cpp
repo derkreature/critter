@@ -75,7 +75,7 @@ void WINAPI CheckChangedFile( LPDIRECTORY_INFO lpdi,
     }
 }
 
-void WINAPI handleDirectoryChange(DWORD dwCompletionPort)
+void WINAPI handleDirectoryChange(ULONG_PTR dwCompletionPort)
 {
     DWORD numBytes;
     DWORD cbOffset;
@@ -171,7 +171,7 @@ FileChangeWatcher::initialize()
     memcpy(_dirInfo->lpszDirName, pathName.c_str(), sizeof(wchar_t) * pathName.length());
     _processCompletionHandle= CreateIoCompletionPort( _dirInfo->hDir,   
                                                      _processCompletionHandle,   
-                                                    (DWORD) _dirInfo,   
+                                                     (ULONG_PTR)_dirInfo,   
                                                      0);   
 
     ReadDirectoryChangesW(_dirInfo->hDir,   

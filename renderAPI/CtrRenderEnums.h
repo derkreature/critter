@@ -220,7 +220,7 @@ enum DeclarationMethod
     METHOD_LOOKUPPRESAMPLED,     // Lookup a pre-sampled displacement map
 };
 
-typedef enum DeclarationType
+enum DeclarationType
 {
     FLOAT1    =  0,  // 1D float expanded to (value, 0., 0., 1.)
     FLOAT2    =  1,  // 2D float expanded to (value, value, 0., 1.)
@@ -245,7 +245,7 @@ typedef enum DeclarationType
     UINT32    = 19
 };
 
-typedef enum DeclarationUsage
+enum DeclarationUsage
 {
     POSITION = 0,
     BLENDWEIGHT,   // 1
@@ -269,7 +269,7 @@ typedef enum DeclarationUsage
     OLDSTATE
 };
 
-typedef enum TextureFilter
+enum TextureFilter
 {
     // filtering disabled (valid for mip filter only)
     TEXFILTER_NONE            = 0,    
@@ -285,7 +285,7 @@ typedef enum TextureFilter
     TEXFILTER_GAUSSIANQUAD    = 7,    
 };
 
-typedef enum ClearType
+enum ClearType
 {
     CLEAR_TARGET            = (int)0x00000001l,
     CLEAR_ZBUFFER           = (int)0x00000002l,

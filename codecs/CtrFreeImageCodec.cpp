@@ -75,7 +75,7 @@ THE SOFTWARE.
 
 
 #define FREEIMAGE_LIB 
-#include "../dependencies/FreeImage/inc/FreeImage.h"
+#include "../dependencies/FreeImage/source/FreeImage.h"
 
 // freeimage 3.9.1~3.11.0 interoperability fix
 #ifndef FREEIMAGE_COLORORDER
