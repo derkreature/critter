@@ -476,6 +476,11 @@ TextureD3D11::save(const std::string& filePathName,
                          parameters->dimension() == Ctr::CubeMap ? IF_CUBEMAP : 0);
 
     PixelFormat internalFormat = parameters->format();
+
+    // Due to a bug in writing DDS, BGRA is never correctly detected by maya
+    // or photoshop, but DDS texture tool correctly loads o_O.
+    
+    bool reverse = false;
     size_t extension = filePathName.rfind(".");
 
     if (internalFormat == PF_FLOAT32_RGBA)
@@ -533,7 +538,7 @@ TextureD3D11::save(const std::string& filePathName,
                          format, 1, 
                          parameters->dimension() == Ctr::CubeMap ? IF_CUBEMAP : 0);
     }
-    bool reverse = false;
+
 
     if (mapForRead())
     {

@@ -555,6 +555,7 @@ typedef struct
                 uint32_t testMasks[4];
                 PixelUtil::getBitMasks(pf, testMasks);
                 int testBits[4];
+
                 PixelUtil::getBitDepths(pf, testBits);
                 if (testMasks[2] == rMask && testMasks[1] == gMask &&
                     testMasks[0] == bMask && 

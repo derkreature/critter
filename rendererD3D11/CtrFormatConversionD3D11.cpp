@@ -52,9 +52,9 @@ PixelFormat findFormat(DXGI_FORMAT format)
         case DXGI_FORMAT_R16_UNORM:
             return PF_L16;
         case DXGI_FORMAT_R8G8B8A8_UNORM:
-            return PF_A8B8G8R8;
-        case DXGI_FORMAT_B8G8R8A8_UNORM:
             return PF_A8R8G8B8;
+        case DXGI_FORMAT_B8G8R8A8_UNORM:
+            return PF_A8B8G8R8;
         case DXGI_FORMAT_R10G10B10A2_TYPELESS:
             return PF_A2B10G10R10;
         case DXGI_FORMAT_R16_FLOAT:
