@@ -450,15 +450,15 @@ typedef struct
 
             if (colorReverse)
             {
-                ddsHeader.pixelFormat.redMask   = (isFloat32r) ? 0xFFFFFFFF :0x000000FF;
-                ddsHeader.pixelFormat.greenMask = (isFloat32r) ? 0x00000000 :0x0000FF00;
-                ddsHeader.pixelFormat.blueMask  = (isFloat32r) ? 0x00000000 :0x00FF0000;
+                ddsHeader.pixelFormat.redMask = (isFloat32r) ? 0xFFFFFFFF : 0x00FF0000;
+                ddsHeader.pixelFormat.greenMask = (isFloat32r) ? 0x00000000 : 0x0000FF00;
+                ddsHeader.pixelFormat.blueMask = (isFloat32r) ? 0x00000000 : 0x000000FF;
             }
             else
             {
-                ddsHeader.pixelFormat.redMask   = (isFloat32r) ? 0xFFFFFFFF :0x00FF0000;
-                ddsHeader.pixelFormat.greenMask = (isFloat32r) ? 0x00000000 :0x0000FF00;
-                ddsHeader.pixelFormat.blueMask  = (isFloat32r) ? 0x00000000 :0x000000FF;
+                ddsHeader.pixelFormat.redMask = (isFloat32r) ? 0xFFFFFFFF : 0x000000FF;
+                ddsHeader.pixelFormat.greenMask = (isFloat32r) ? 0x00000000 : 0x0000FF00;
+                ddsHeader.pixelFormat.blueMask = (isFloat32r) ? 0x00000000 : 0x00FF0000;
             }
 
             ddsHeader.caps.caps1 = ddsHeaderCaps1;

@@ -388,12 +388,11 @@ TextureD3D11::readImage(Ctr::PixelFormat format, int32_t mipId) const
                          resource()->format(),
                          (uint32_t)resource()->mipLevels(),
                          resource()->dimension() == Ctr::CubeMap ? IF_CUBEMAP : 0);
-
-    bool reverse = resource()->format() == PixelFormat::PF_A8R8G8B8;
+    bool reverse = false;
 
     if (mapForRead())
     {
-        size_t dstOffset = 0;
+        size_t dstOffset = 0; 
         size_t srcOffset = 0;
 
         uint8_t * dstData = (uint8_t*)textureImage->getData();
