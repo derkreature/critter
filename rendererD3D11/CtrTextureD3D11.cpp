@@ -476,10 +476,8 @@ TextureD3D11::save(const std::string& filePathName,
 
     PixelFormat internalFormat = parameters->format();
 
-    // Due to a bug in writing DDS, BGRA is never correctly detected by maya
-    // or photoshop, but DDS texture tool correctly loads o_O.
-    
-    bool reverse = false;
+    bool reverse = internalFormat == PF_A8R8G8B8;
+
     size_t extension = filePathName.rfind(".");
 
     if (internalFormat == PF_FLOAT32_RGBA)

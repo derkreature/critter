@@ -447,18 +447,18 @@ typedef struct
 
             ddsHeader.pixelFormat.rgbBits = ddsHeaderRgbBits;
             ddsHeader.pixelFormat.alphaMask = (isFloat32r) ? 0x00000000 : (hasAlpha)   ? 0xFF000000 : 0x00000000;
-
+            
             if (colorReverse)
-            {
-                ddsHeader.pixelFormat.redMask = (isFloat32r) ? 0xFFFFFFFF : 0x00FF0000;
-                ddsHeader.pixelFormat.greenMask = (isFloat32r) ? 0x00000000 : 0x0000FF00;
-                ddsHeader.pixelFormat.blueMask = (isFloat32r) ? 0x00000000 : 0x000000FF;
-            }
-            else
             {
                 ddsHeader.pixelFormat.redMask = (isFloat32r) ? 0xFFFFFFFF : 0x000000FF;
                 ddsHeader.pixelFormat.greenMask = (isFloat32r) ? 0x00000000 : 0x0000FF00;
                 ddsHeader.pixelFormat.blueMask = (isFloat32r) ? 0x00000000 : 0x00FF0000;
+            }
+            else
+            {
+                ddsHeader.pixelFormat.redMask = (isFloat32r) ? 0xFFFFFFFF : 0x00FF0000;
+                ddsHeader.pixelFormat.greenMask = (isFloat32r) ? 0x00000000 : 0x0000FF00;
+                ddsHeader.pixelFormat.blueMask = (isFloat32r) ? 0x00000000 : 0x000000FF;
             }
 
             ddsHeader.caps.caps1 = ddsHeaderCaps1;
@@ -496,7 +496,6 @@ typedef struct
             of.open(outFileName.c_str(), std::ios_base::binary|std::ios_base::out);
             of.write((const char *)&ddsMagic, sizeof(uint32_t));
             of.write((const char *)&ddsHeader, DDS_HEADER_SIZE);
-            // XXX flipEndian on each pixel chunk written unless isFloat32r ?
             of.write((const char *)input->getPtr(), (uint32_t)imgData->size);
             of.close();
         }
