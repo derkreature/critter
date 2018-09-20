@@ -644,7 +644,7 @@ TextureD3D11::save(const std::string& filePathName,
             }
         }
 
-        if (this->isCubeMap())
+        if (this->isCubeMap() && fixSeams)
         {
             if (parameters->format() == Ctr::PF_A8R8G8B8)
             {
