@@ -39,84 +39,48 @@
 //                                                                                    //
 //------------------------------------------------------------------------------------//
 
-#ifndef INCLUDED_TIMER
-#define INCLUDED_TIMER
+#pragma once
 
-#include <CtrPlatform.h>
+#include <chrono>
 
 namespace Ctr
-{
+{ 
 class Timer
 {
-  public:
-    Timer();
-    ~Timer();
+public:
+    // Construct with optional target FPS (0 = unlocked)
+    explicit Timer(unsigned int targetFps = 0u) noexcept;
 
-  protected:
-    //----------------------
-    // initializes the timer 
-    //----------------------
-    bool                       initialize();
+    // Reset reference clock to now and zero accumulated state
+    void reset() noexcept;
 
-    void                       lockFrameCounter();
-    void                       preciseSleep(double seconds);
+    // Call once per loop; returns elapsed delta in seconds since last tick
+    double tick() noexcept;
 
-  public:
-    static size_t              frame (double time, double rate = 24.0);
-    static double              time (size_t frame, double rate = 24.0);
+    // Block until the next frame time if target FPS is set.
+    // Returns true if the thread slept; false if already behind schedule or unlocked.
+    bool waitUntilNextFrame() noexcept;
 
-    //------------------
-    // Updates the timer
-    //------------------
-    bool                        update (bool stop = false);
+    // Set or change the target FPS (0 => unlocked)
+    void setTargetFPS(unsigned int fps) noexcept;
 
-    void                        reset();
-    void                        startTimer();
-    void                        stopTimer();
-    const double&               absoluteTime() const;
-    const double&               elapsedTime() const;
-    const double&               demoTime() const;
+    // Get the current target FPS (0 means unlocked)
+    unsigned int targetFPS() const noexcept;
 
-    const double&               normalizedTime() const;
-    uint32_t                    lockFrameCounter() const;
-    void                        setLockFrameCounter(uint32_t rate);
+    // Get last tick delta in seconds
+    double lastDeltaSeconds() const noexcept;
 
-    uint32_t                    frameRate() const;
+    // Preserved public fields (kept public to preserve existing call-sites)
+    double _apptime;         // accumulated application time (seconds)
+    double _absTime;         // absolute time since timer creation (seconds)
+    double _normalizedTime;  // normalized time in [0,1) (apptime mod 1.0)
+    unsigned int frameRateCount; // increments each tick
 
-  protected:
-    double                      elapsedSeconds();
-
-    uint64_t                   _startTick;
-    long                       _zeroClock;
-    unsigned long              _timerMask;
-
-    bool                       _timerInitialized;
-
-    LONGLONG                   _llQPFTicksPerSec;
-    LONGLONG                   _llStopTime; 
-    LONGLONG                   _llLastElapsedTime;
-    LONGLONG                   _llBaseTime;
-
-    double                     _lastElapsedTime;
-    double                     _elapsedTime;
-    double                     _absTime;
-    double                     _appTime;
-    double                     _normalizedTime;
-
-    double                     _time;
-    LARGE_INTEGER              _qwTime;
-    LARGE_INTEGER              _startTime;
-    bool                       _timerStarted;
-
-    HANDLE                     _timeEvent;
-    double                     _lastSeconds;
-
-    uint32_t                   _lockFrameCounter;
-
-    uint32_t                   _frameRate;
-    uint32_t                   _frameRateCounter;
-    float                      _frameRateTimeElapsed;
-
+private:
+    using clock = std::chrono::steady_clock;
+    clock::time_point _startTime;
+    clock::time_point _lastTime;
+    std::chrono::nanoseconds _frameDuration;
+    double _lastDeltaSeconds;
 };
 }
-#endif

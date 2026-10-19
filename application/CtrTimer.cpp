@@ -39,270 +39,110 @@
 //                                                                                    //
 //------------------------------------------------------------------------------------//
 
-#include <CtrTimer.h>
-#include <CtrLog.h>
+#include "CtrTimer.h"
+#include <thread>
+#include <cmath>
+#include <cstdint>
 
 namespace Ctr
-{
-Timer::Timer() :
-    _timerInitialized(false),
-    _llQPFTicksPerSec(0),
-    _llStopTime(0),
-    _llLastElapsedTime(0),
-    _llBaseTime(0),
-    _lastElapsedTime(0),
-    _elapsedTime(0),
-    _appTime (0),
-    _absTime (0),
-    _normalizedTime (0),
-    _timerStarted(0),
-    _lockFrameCounter (0),
-    _lastSeconds(0),
-    _frameRate(0),
-    _frameRateCounter(0),
-    _frameRateTimeElapsed(0.0),
-    _timerMask(0)
-{
-    _timeEvent = CreateEvent(nullptr,TRUE,FALSE,nullptr);
-    ResetEvent(_timeEvent);    
-    initialize();
-}
-
-Timer::~Timer()
-{
-    CloseHandle(_timeEvent);
-}
-
-const double&
-Timer::normalizedTime() const
-{
-    return _normalizedTime;
-}
-
-void 
-Timer::preciseSleep(double seconds)
 { 
-    const unsigned int milliseconds= (unsigned int)(seconds*1000.0);
-    HANDLE thread = GetCurrentThread();
-    if (milliseconds == 0)
-        return;
-
-    // Set affinity to the first core
-    intptr_t oldMask = SetThreadAffinityMask(thread, _timerMask);
-	WaitForSingleObject(_timeEvent, milliseconds);
-    SetThreadAffinityMask(thread, oldMask);
+Timer::Timer(unsigned int targetFps) noexcept
+    : _startTime(clock::now()),
+    _lastTime(_startTime),
+    _frameDuration(std::chrono::nanoseconds::zero()),
+    _lastDeltaSeconds(0.0),
+    _apptime(0.0),
+    _absTime(0.0),
+    _normalizedTime(0.0),
+    frameRateCount(0u)
+{
+    setTargetFPS(targetFps);
 }
 
-size_t
-Timer::frame (double time, double rate)
+void Timer::reset() noexcept
 {
-    return size_t(time * rate);
+    _startTime = clock::now();
+    _lastTime = _startTime;
+    _lastDeltaSeconds = 0.0;
+    _apptime = 0.0;
+    _absTime = 0.0;
+    _normalizedTime = 0.0;
+    frameRateCount = 0u;
 }
 
-double
-Timer::time (size_t frame, double rate)
+double Timer::tick() noexcept
 {
-    return double(frame) * (1.0f / rate);
+    auto now = clock::now();
+    auto delta = now - _lastTime;
+    _lastDeltaSeconds = std::chrono::duration<double>(delta).count();
+
+    // Advance logical/accumulated times
+    _apptime += _lastDeltaSeconds;
+    _absTime = std::chrono::duration<double>(now - _startTime).count();
+    _normalizedTime = std::fmod(_apptime, 1.0);
+    ++frameRateCount;
+
+    // Move last time to "now" so next tick measures from here.
+    _lastTime = now;
+    return _lastDeltaSeconds;
 }
 
-bool 
-Timer::initialize()
+bool Timer::waitUntilNextFrame() noexcept
 {
-    if(_timerInitialized  == FALSE)
+    if (_frameDuration == std::chrono::nanoseconds::zero())
+        return false; // unlocked
+
+    // Scheduled target based on the last measured frame boundary.
+    auto target = _lastTime + _frameDuration;
+    auto now = clock::now();
+
+    if (now >= target)
     {
-        _timerInitialized = TRUE;
-        LARGE_INTEGER qwTicksPerSec;
-
-        DWORD_PTR procMask;
-        DWORD_PTR sysMask;
-        GetProcessAffinityMask(GetCurrentProcess(), &procMask, &sysMask);
-
-        if (procMask == 0)
-            procMask = 1;
-
-        // Find the lowest core that this process uses
-        if( _timerMask == 0 )
-        {
-            _timerMask = 1;
-            while( ( _timerMask & procMask ) == 0 )
-            {
-                _timerMask <<= 1;
-            }
-        }
-
-        HANDLE thread = GetCurrentThread();
-
-        // Set affinity to the first core
-        DWORD_PTR oldMask = SetThreadAffinityMask(thread, _timerMask);
-
-        // Assert if we cannot use query performance counter.
-        qwTicksPerSec.QuadPart = 0;
-        if (QueryPerformanceFrequency( &qwTicksPerSec ) == 0)
-        {
-            LOG ("Failed to get performance frequency.");
-        }
-
-
-        _llQPFTicksPerSec = qwTicksPerSec.QuadPart;
-
-        QueryPerformanceCounter(&_startTime);
-        _startTick = GetTickCount();
-        
-        // Reset affinity
-        SetThreadAffinityMask(thread, oldMask);
-        _zeroClock = clock();
-               
-        return true;
-    }
-    return false;
-}
-
-uint32_t
-Timer::lockFrameCounter() const
-{
-    return _lockFrameCounter;
-}
-
-void
-Timer::setLockFrameCounter(uint32_t rate)
-{
-    _lockFrameCounter = rate;
-}
-
-void
-Timer::lockFrameCounter()
-{    
-    const double timediff_limit= 1.f/(double)_lockFrameCounter;
-
-    // Work out the elapsed time to now.    
-    double elapsedTime = elapsedSeconds() - _lastSeconds;
-
-    if (elapsedTime < timediff_limit)    
-    {
-        preciseSleep(timediff_limit - (elapsedTime));
-    }
-}
-
-double
-Timer::elapsedSeconds()
-{
-    LARGE_INTEGER time = _qwTime;
-    HANDLE thread = GetCurrentThread();
-    DWORD_PTR oldMask = SetThreadAffinityMask(thread, _timerMask);
-    QueryPerformanceCounter(&time);
-    SetThreadAffinityMask(thread, oldMask);
-
-    // scale by 1000 for milliseconds
-    LONGLONG newTime = time.QuadPart - _startTime.QuadPart;
-    unsigned long newTicks = (unsigned long) (1000 * newTime / _llQPFTicksPerSec);
-
-    // detect and compensate for performance counter leaps
-    // (surprisingly common, see Microsoft KB: Q274323)
-    uint64_t check = GetTickCount() - _startTick;
-    signed long msecOff = (signed long)(newTicks - check);
-    if (msecOff < -100 || msecOff > 100)
-    {
-        // We must keep the timer running forward :)
-        LONGLONG adjust = (std::min)((LONGLONG)(msecOff * _llQPFTicksPerSec / 1000), (LONGLONG)(time.QuadPart - _qwTime.QuadPart));
-        _startTime.QuadPart += adjust;
-        newTime -= adjust;
-
-        // Re-calculate milliseconds
-        newTicks = (unsigned long) (1000 * newTime / _llQPFTicksPerSec);
+        // We're already late; don't sleep.
+        return false;
     }
 
-    _qwTime = time;
-    return (double)(newTicks) / 1000.0;
-}
+    std::this_thread::sleep_until(target);
 
-bool     
-Timer::update (bool stop)
-{
-    if (!_timerStarted)
-    {
-       startTimer();
-    }
+    // Align lastTime to the scheduled target so next tick() measures from expected frame boundary.
+    _lastTime = target;
 
-    if (_lockFrameCounter > 0)
-    {
-        lockFrameCounter();
-    }
-    
-    _llLastElapsedTime = _qwTime.QuadPart;
-    
-    double seconds = elapsedSeconds();
-    _elapsedTime = seconds - _lastSeconds;
-    _lastSeconds = seconds;
-    
-    _appTime  = (double)( _qwTime.QuadPart - _startTime.QuadPart ) / 
-            (double) _llQPFTicksPerSec;
-    _absTime  = _qwTime.QuadPart / (double) _llQPFTicksPerSec;
-    _normalizedTime  = -(floor (_appTime) - _appTime);
-
-    _frameRateCounter++;
-    _frameRateTimeElapsed += (float)(_elapsedTime);
-
-    if (_frameRateTimeElapsed > 1.0)
-    {
-        _frameRateTimeElapsed = 0.0f;
-        _frameRate = _frameRateCounter;
-        _frameRateCounter = 0;
-    }
+    // Reflect that we slept a full frame
+    _lastDeltaSeconds = std::chrono::duration<double>(_frameDuration).count();
+    _apptime += _lastDeltaSeconds;
+    _absTime = std::chrono::duration<double>(_lastTime - _startTime).count();
+    _normalizedTime = std::fmod(_apptime, 1.0);
+    ++frameRateCount;
 
     return true;
 }
 
-void
-Timer::reset()
+void Timer::setTargetFPS(unsigned int fps) noexcept
 {
-    update();
-
-    _llBaseTime        = _qwTime.QuadPart;
-    _llLastElapsedTime = _qwTime.QuadPart;
-
-    _appTime = 0;
-    _absTime = 0;
-    _elapsedTime = 0;
+    if (fps == 0u)
+    {
+        _frameDuration = std::chrono::nanoseconds::zero();
+    }
+    else
+    {
+        // Compute nanoseconds per frame rounded to nearest integer
+        double nanosPerFrame = 1e9 / static_cast<double>(fps);
+        auto nanos = static_cast<long long>(std::llround(nanosPerFrame));
+        _frameDuration = std::chrono::nanoseconds(nanos);
+    }
 }
 
-void
-Timer::startTimer()
+unsigned int Timer::targetFPS() const noexcept
 {
-    _timerStarted = true;
-    update();
-
-    _llBaseTime = _llBaseTime + _qwTime.QuadPart - _llStopTime;
-    _llStopTime = 0;
-    _llLastElapsedTime = _qwTime.QuadPart;
+    if (_frameDuration == std::chrono::nanoseconds::zero()) return 0u;
+    auto count = _frameDuration.count();
+    if (count <= 0) return 0u;
+    auto fps = static_cast<unsigned int>(1000000000LL / count);
+    return fps == 0u ? 1u : fps;
 }
 
-void
-Timer::stopTimer()
+double Timer::lastDeltaSeconds() const noexcept
 {
-    _llLastElapsedTime = _qwTime.QuadPart;
-}
-
-uint32_t
-Timer::frameRate() const
-{
-    return _frameRate;
-}
-
-const double& 
-Timer::absoluteTime() const 
-{
-    return _absTime;
-}
-
-const double&   
-Timer::elapsedTime() const
-{
-    return _elapsedTime;
-}
-
-const double&
-Timer::demoTime() const
-{
-    return _appTime;
+    return _lastDeltaSeconds;
 }
 }
